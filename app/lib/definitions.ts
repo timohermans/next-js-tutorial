@@ -32,9 +32,9 @@ export type Revenue = {
 };
 
 export type LatestInvoice = {
-  id: string;
+  id: number;
   name: string;
-  image_url: string;
+  imageUrl: string;
   email: string;
   amount: string;
 };
