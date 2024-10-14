@@ -19,7 +19,7 @@ export const invoices = sqliteTable('invoices', {
     id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
     customerId: integer('customer_id').notNull().references(() => customers.id, { onDelete: 'no action', onUpdate: 'no action' }),
     amount: integer('amount').notNull(),
-    status: text('status').notNull(),
+    status: text('status', { enum: ["paid", "pending"] }).notNull(),
     date: text('date').notNull()
 });
 

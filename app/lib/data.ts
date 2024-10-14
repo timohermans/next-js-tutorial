@@ -1,7 +1,7 @@
 import { formatCurrency } from './utils';
 import { db } from '@/db';
 import { customers, invoices, revenue } from '@/db/schema';
-import { asc, count, desc, eq, ilike, or, sql } from 'drizzle-orm';
+import { asc, count, desc, eq, like, or, sql } from 'drizzle-orm';
 
 export async function fetchRevenue() {
   try {
@@ -88,8 +88,10 @@ export async function fetchFilteredInvoices(
   currentPage: number,
 ) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const queryLowered = query.toLowerCase();
 
   try {
+    console.log(query);
     const filtered = await db
       .select({
         id: invoices.id,
@@ -102,13 +104,13 @@ export async function fetchFilteredInvoices(
       })
       .from(invoices)
       .where(or(
-        ilike(customers.name, `%${query}%`),
-        ilike(customers.email, `%${query}%`),
-        ilike(invoices.amount, `%${query}%`),
-        ilike(invoices.date, `%${query}%`),
-        // sql`${invoices.amount}::text ILIKE '%${query}%'`,
-        // sql`${invoices.date}::text ILIKE '%${query}%'`,
-        ilike(invoices.status, `%${query}%`),
+        like(customers.name, `%${query}%`),
+        like(customers.email, `%${query}%`),
+        like(invoices.amount, `%${query}%`),
+        like(invoices.date, `%${query}%`),
+        // sql`${invoices.amount}::text like '%${query}%'`,
+        // sql`${invoices.date}::text like '%${query}%'`,
+        like(invoices.status, `%${query}%`),
       ))
       .innerJoin(customers, eq(invoices.customerId, customers.id))
       .orderBy(desc(invoices.date))
@@ -131,13 +133,13 @@ export async function fetchInvoicesPages(query: string) {
       .from(invoices)
       .innerJoin(customers, eq(customers.id, invoices.customerId))
       .where(or(
-        ilike(customers.name, `%${query}%`),
-        ilike(customers.email, `%${query}%`),
-        ilike(invoices.amount, `%${query}%`),
-        ilike(invoices.date, `%${query}%`),
-        // sql`${invoices.amount}::text ILIKE '%${query}%'`,
-        // sql`${invoices.date}::text ILIKE '%${query}%'`,
-        ilike(invoices.status, `%${query}%`),
+        like(customers.name, `%${query}%`),
+        like(customers.email, `%${query}%`),
+        like(invoices.amount, `%${query}%`),
+        like(invoices.date, `%${query}%`),
+        // sql`${invoices.amount}::text like '%${query}%'`,
+        // sql`${invoices.date}::text like '%${query}%'`,
+        like(invoices.status, `%${query}%`),
       ));
 
     const totalPages = Math.ceil(Number(filteredCount[0].count) / ITEMS_PER_PAGE);
@@ -156,6 +158,7 @@ export async function fetchInvoiceById(id: number) {
         customerId: invoices.customerId,
         amount: invoices.amount,
         status: invoices.status,
+        date: invoices.date
       })
       .from(invoices)
       .where(
@@ -208,13 +211,13 @@ export async function fetchFilteredCustomers(query: string) {
       .leftJoin(invoices, eq(customers.id, invoices.customerId))
       .where(
         or(
-          ilike(customers.name, `%${query}%`),
-          ilike(customers.email, `%${query}%`),
+          like(customers.name, `%${query}%`),
+          like(customers.email, `%${query}%`),
         )
       )
       .groupBy(customers.id, customers.name, customers.email, customers.imageUrl)
       .orderBy(asc(customers.name));
-    
+
     const customersData = data.map((customer) => ({
       ...customer,
       total_pending: formatCurrency(customer.totalPending),

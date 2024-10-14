@@ -17,8 +17,8 @@ export type Customer = {
 };
 
 export type Invoice = {
-  id: string;
-  customer_id: string;
+  id: number;
+  customerId: number;
   amount: number;
   date: string;
   // In TypeScript, this is called a string union type.
@@ -76,13 +76,13 @@ export type FormattedCustomersTable = {
 };
 
 export type CustomerField = {
-  id: string;
+  id: number;
   name: string;
 };
 
 export type InvoiceForm = {
-  id: string;
-  customer_id: string;
+  id: number;
+  customerId: number;
   amount: number;
   status: 'pending' | 'paid';
 };
